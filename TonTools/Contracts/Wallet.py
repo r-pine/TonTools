@@ -1,7 +1,7 @@
 import tonsdk
 from tonsdk.utils import Address, InvalidAddressError
 from tonsdk.contract.wallet import WalletVersionEnum, Wallets
-from ..Contracts.Contract import Contract
+from ..Contracts.Contract import Contract, Cell
 from tonsdk.utils import bytes_to_b64str
 import tonsdk.contract.token.ft
 from tonsdk.contract.token.nft import NFTItem
@@ -36,7 +36,7 @@ class Wallet(Contract):
     async def get_seqno(self):
         return await self.provider.get_wallet_seqno(self.address)
 
-    async def transfer_ton(self, destination_address: str, amount: float, message: str = '', send_mode: int = 3):
+    async def transfer_ton(self, destination_address: str, amount: float, message: Cell | bytes | str = '', send_mode: int = 3):
         if not self.has_access():
             raise WalletError('Cannot send tons from wallet without wallet mnemonics\nCreate wallet like Wallet(mnemonics=["your", "mnemonic", "here"...], version="your_wallet_version")')
         mnemonics, _pub_k, _priv_k, wallet = Wallets.from_mnemonics(self.mnemonics, WalletVersionEnum(self.version), 0)
