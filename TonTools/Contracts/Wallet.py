@@ -36,14 +36,14 @@ class Wallet(Contract):
     async def get_seqno(self):
         return await self.provider.get_wallet_seqno(self.address)
 
-    async def transfer_ton(self, destination_address: str, amount: float, message: Cell | bytes | str = '', send_mode: int = 3):
+    async def transfer_ton(self, destination_address: str, amount: float, message: Cell | bytes | str = '', send_mode: int = 3, state_init: Cell | Any | None = None):
         if not self.has_access():
             raise WalletError('Cannot send tons from wallet without wallet mnemonics\nCreate wallet like Wallet(mnemonics=["your", "mnemonic", "here"...], version="your_wallet_version")')
         mnemonics, _pub_k, _priv_k, wallet = Wallets.from_mnemonics(self.mnemonics, WalletVersionEnum(self.version), 0)
         seqno = await self.get_seqno()
         query = wallet.create_transfer_message(to_addr=destination_address,
                                                amount=tonsdk.utils.to_nano(amount, 'ton'),
-                                               seqno=seqno, payload=message, send_mode=send_mode)
+                                               seqno=seqno, payload=message, send_mode=send_mode, state_init=state_init)
         boc = bytes_to_b64str(query["message"].to_boc(False))
         response = await self.provider.send_boc(boc)
         return response
